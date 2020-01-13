@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<List> fetchCommit() async {
     final response = await http.get(
-        'https://api.github.com/repos/rishabh6072/BurgerTheBuilder/commits?page=$pageNumber&per_page=10');
+        'https://api.github.com/repos/rishabh-deligence/comgits/commits?page=$pageNumber&per_page=10');
     if (response.statusCode == 200) {
       pageNumber++;
       List responseJson = json.decode(response.body);
