@@ -19,6 +19,8 @@ class _MyAppState extends State<MyApp> {
   bool isDataAvailable = true;
   var items = List();
   bool isLoading = false;
+  int per_page = 5;
+
   @override
   void initState() {
     super.initState();
@@ -27,12 +29,12 @@ class _MyAppState extends State<MyApp> {
 
   Future<List> fetchCommit() async {
     final response = await http.get(
-        'https://api.github.com/repos/rishabh-deligence/comgits/commits?page=$pageNumber&per_page=10');
+        'https://api.github.com/repos/rishabh-deligence/comgits/commits?page=$pageNumber&per_page=$per_page');
     if (response.statusCode == 200) {
       pageNumber++;
       List responseJson = json.decode(response.body);
 
-      if (responseJson.length < 10) isDataAvailable = false;
+      if (responseJson.length < per_page) isDataAvailable = false;
 
       items.addAll(responseJson.map((m) => new Commit.fromJson(m)));
       setState(() {
