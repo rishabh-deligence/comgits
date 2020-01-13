@@ -4,19 +4,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<Commit>> fetchCommit() async {
-  final response = await http.get(
-      'https://api.github.com/repos/facebook/react-native/commits?page=1&per_page=10');
-
-  if (response.statusCode == 200) {
-    List responseJson = json.decode(response.body);
-    return responseJson.map((m) => new Commit.fromJson(m)).toList();
-  } else {
-    // If that call was not successful, throw an error.
-    throw Exception('Failed to load commit');
-  }
-}
-
 class Commit {
   final String sha;
   final Commitdetails commit;
@@ -71,42 +58,123 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Future<List<Commit>> commit;
-
+  int pageNumber = 1;
+  var items = List();
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
-    commit = fetchCommit();
+    fetchCommit();
+  }
+
+  Future<List> fetchCommit() async {
+    final response = await http.get(
+        'https://api.github.com/repos/facebook/react-native/commits?page=$pageNumber&per_page=10');
+    if (response.statusCode == 200) {
+      pageNumber++;
+      List responseJson = json.decode(response.body);
+      items.addAll(responseJson.map((m) => new Commit.fromJson(m)));
+      setState(() {
+        isLoading = false;
+      });
+      return items;
+    } else {
+      throw Exception('Failed to load commit');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Fetch Data Example',
+      title: 'Comgits',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Fetch Data Example'),
+          title: Text('Comgits'),
         ),
-        body: Center(
-          child: FutureBuilder<List<Commit>>(
-            future: commit,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                List<Commit> commits = snapshot.data;
-                return new ListView(
-                  children: commits.map((commit) => Text(commit.sha)).toList(),
-                );
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              }
-
-              // By default, show a loading spinner.
-              return CircularProgressIndicator();
-            },
-          ),
+        body: Column(
+          children: <Widget>[
+            Expanded(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scrollInfo) {
+                  if (!isLoading &&
+                      scrollInfo.metrics.pixels ==
+                          scrollInfo.metrics.maxScrollExtent) {
+                    fetchCommit();
+                    setState(() {
+                      isLoading = true;
+                    });
+                  }
+                  return false;
+                },
+                child: ListView(
+                  children: items
+                      .map((commit) => Container(
+                            padding: EdgeInsets.all(10),
+                            child: Card(
+                              elevation: 12.0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      RichText(
+                                        text: TextSpan(
+                                            style: TextStyle(
+                                                color: Colors.black87,
+                                                fontSize: 18),
+                                            children: [
+                                              TextSpan(
+                                                text: 'Unique ID : ',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                              TextSpan(text: '${commit.sha}  ')
+                                            ]),
+                                      ),
+                                      SizedBox(height: 5),
+                                      RichText(
+                                        text: TextSpan(
+                                            style: TextStyle(
+                                                color: Colors.black87,
+                                                fontSize: 18),
+                                            children: [
+                                              TextSpan(
+                                                text: 'Committer : ',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                              TextSpan(
+                                                  text:
+                                                      '${commit.commit.committer.email} ')
+                                            ]),
+                                      ),
+                                    ],
+                                  )),
+                            ),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ),
+            Container(
+              height: isLoading ? 50.0 : 0,
+              color: Colors.transparent,
+              child: Center(
+                child: new CircularProgressIndicator(),
+              ),
+            ),
+          ],
         ),
       ),
     );
