@@ -3,50 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-class Commit {
-  final String sha;
-  final Commitdetails commit;
-
-  Commit({this.sha, this.commit});
-
-  factory Commit.fromJson(Map<String, dynamic> json) {
-    return Commit(
-      sha: json['sha'],
-      commit: new Commitdetails.fromJson(json['commit']),
-    );
-  }
-}
-
-class Commitdetails {
-  final String message;
-  final Committer committer;
-
-  Commitdetails({this.message, this.committer});
-
-  factory Commitdetails.fromJson(Map<String, dynamic> json) {
-    return Commitdetails(
-      message: json['message'],
-      committer: new Committer.fromJson(json['committer']),
-    );
-  }
-}
-
-class Committer {
-  final String name;
-  final String email;
-  final String date;
-
-  Committer({this.name, this.email, this.date});
-
-  factory Committer.fromJson(Map<String, dynamic> json) {
-    return Committer(
-      name: json['name'],
-      email: json['email'],
-      date: json['date'],
-    );
-  }
-}
+import 'package:comgits/models/commit.dart';
 
 void main() => runApp(MyApp());
 
@@ -91,7 +48,7 @@ class _MyAppState extends State<MyApp> {
     items = List();
     pageNumber = 1;
     isDataAvailable = true;
-    fetchCommit();
+    return fetchCommit();
   }
 
   @override
