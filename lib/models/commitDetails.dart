@@ -1,16 +1,18 @@
+import 'package:json_annotation/json_annotation.dart';
 
 import 'package:comgits/models/committer.dart';
 
-class Commitdetails {
+part 'commitDetails.g.dart';
+
+@JsonSerializable(explicitToJson: true)
+class CommitDetails {
   final String message;
   final Committer committer;
 
-  Commitdetails({this.message, this.committer});
+  CommitDetails({this.message, this.committer});
 
-  factory Commitdetails.fromJson(Map<String, dynamic> json) {
-    return Commitdetails(
-      message: json['message'],
-      committer: new Committer.fromJson(json['committer']),
-    );
-  }
+  factory CommitDetails.fromJson(Map<String, dynamic> json) =>
+      _$CommitDetailsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CommitDetailsToJson(this);
 }

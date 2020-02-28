@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:comgits/models/commit.dart';
 
+// import 'models/commitDetails.dart';
+// import 'models/committer.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -28,6 +31,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<List> fetchCommit() async {
+    // Committer committer =
+    //     Committer(name: "RJ", email: "r@gmail.com", date: "DATE");
+    // CommitDetails cd = CommitDetails(message: "My st.", committer: committer);
+    // Commit c = Commit(sha: "John", commit: cd);
+    // print(c.toJson());
+
     final response = await http.get(
         'https://api.github.com/repos/rishabh-deligence/comgits/commits?page=$pageNumber&per_page=$per_page');
     if (response.statusCode == 200) {
